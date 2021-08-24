@@ -1,81 +1,84 @@
 buildscript {
     dependencies {
-      classpath brazilGradle.tool('BrazilGradleQualityDefaults')
+        classpath brazilGradle.tool('BrazilGradleQualityDefaults')
     }
 }
 
 plugins {
-    id 'brazil-quality-defaults'
     id "java"
     id "jacoco"
+    id "brazil-quality-defaults"
+    // To build a shadow jar of this resource provider
     id 'com.github.johnrengelman.shadow'
 }
 
-def resource_name_with_dashes = 'aws-ec2capacityreservationfleet-capacity-reservation-fleet'
+def resource_name_with_dashes = 'aws-ec2capacityreservationfleet-capacityreservationfleet'
 def schema_file = "${resource_name_with_dashes}.json"
 
-description 'CloudFormation Resource Provider - <AWS::EC2CapacityReservationFleet::capacity-reservation-fleet>'
+description 'CloudFormation Resource Provider - <AWS::EC2CapacityReservationFleet::CapacityReservationFleet>'
 
-// Include RPDK generated source by `cfn generate`
+// Include RPDK generated source by `cfn-cli generate`
 sourceSets.main.java.srcDirs += ['target/generated-sources/rpdk']
 
 // Inlcude schema into jar
 sourceSets.main.resources {
-    srcDir 'target/schema'
+    srcDir '.'
     include schema_file
 }
 
 dependencies {
     compile brazilGradle.build()
+
     testCompile brazilGradle.testbuild()
+
 }
 
 test {
     useJUnitPlatform()
+    environment "AWS_REGION", "us-west-2"
 }
 
 def cfn_command = "${brazilGradle.path('[AWSCloudFormationRPDKJavaPluginTool]run.runtimefarm')}/bin/cfn"
 
 // Generate RPDK wrapper source before compile
 task rpdkGenerateSource(type: Exec) {
-    workingDir '.'
+    workingDir "."
     executable = cfn_command
-    args = ['generate']
+    args = ["generate"]
 }
 
-task copySchema(type: Copy) {
-    from(".") {
-        include schema_file
-    }
-    into "target/schema"
-}
-
-compileJava.dependsOn(copySchema, rpdkGenerateSource)
+compileJava.dependsOn(rpdkGenerateSource)
 
 // Run the tests by default
 release.dependsOn(check)
 
 // Build a shadow jar for resource provider
 shadowJar {
-    // cfn requires the artifact under target and suffixed with SNAPSHOT.jar
+    // cfn-cli requires the artifact under target and suffixed with SNAPSHOT.jar
     classifier = null
-    baseName = "${resource_name_with_dashes}"
-    destinationDir = file('./target')
+    baseName = resource_name_with_dashes
+    destinationDir = file("./target")
 }
 
-// Use `cfn` to build a RPDK package include resource provider shadow jar, schema etc.
 task cfnPackage(type: Exec) {
     dependsOn shadowJar
-    workingDir '.'
+    workingDir "."
     executable = cfn_command
-    args = ['submit', '--dry-run']
+    args = ["submit", "--dry-run"]
 }
 
-// Inject internal files into package for further canary and FAS configuration
+// Use `cfn-cli` to build a RPDK package include resource provider shadow jar, schema etc.
 task rpdkPackage(type: Zip) {
     dependsOn cfnPackage
     from zipTree("${resource_name_with_dashes}.zip")
-    destinationDir = file('./build/rpdk')
+    // Inject internal files
+    from (rootDir) {
+        include "settings.internal.json"
+    }
+    from ("${rootDir}/${resource_name_with_dashes}") {
+        include "canary-bundle/**/*"
+    }
+    destinationDir = file("./build/rpdk")
     archiveName("${resource_name_with_dashes}.zip")
 }
 
@@ -83,6 +86,6 @@ assemble.dependsOn(rpdkPackage)
 
 // Delete target folder for clean
 clean.doLast {
-    file('./target').deleteDir()
+    file("./target").deleteDir()
     file("${resource_name_with_dashes}.zip").delete()
 }
