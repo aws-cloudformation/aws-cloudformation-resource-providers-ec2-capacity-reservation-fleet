@@ -1,0 +1,6 @@
+AWSTemplateFormatVersion: 2010-09-09
+Resources:
+  EC2CapacityReservationFleetCanary:
+    Type: 'AWS::EC2::CapacityReservationFleet'
+    Properties:
+      "TotalTargetCapacity" : 3

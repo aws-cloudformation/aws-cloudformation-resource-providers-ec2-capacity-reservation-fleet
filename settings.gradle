@@ -1,4 +1,4 @@
 rootProject.name = 'AWSCloudFormationResourceProvidersEC2CapacityReservationFleet'
 
-include 'aws-ec2capacityreservationfleet-capacity-reservation-fleet'
+include 'aws-ec2-capacity-reservation-fleet'
 

@@ -1,0 +1,217 @@
+{
+    "typeName": "AWS::EC2::CapacityReservationFleet",
+    "description": "Resource Type definition for AWS::EC2::CapacityReservationFleet",
+    "additionalProperties": false,
+    "properties": {
+        "AllocationStrategy": {
+            "type": "string"
+        },
+        "TagSpecifications": {
+            "type": "array",
+            "uniqueItems": false,
+            "items": {
+                "$ref": "#/definitions/TagSpecification"
+            }
+        },
+        "InstanceTypeSpecifications": {
+            "type": "array",
+            "uniqueItems": true,
+            "maxItems": 50,
+            "items": {
+                "$ref": "#/definitions/InstanceTypeSpecification"
+            }
+        },
+        "TotalTargetCapacity": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 25000
+        },
+        "EndDate": {
+            "type": "string"
+        },
+        "InstanceMatchCriteria": {
+            "type": "string",
+            "enum": [
+                "open"
+            ]
+        },
+        "CapacityReservationFleetId": {
+            "type": "string"
+        },
+        "Tenancy": {
+            "type": "string",
+            "enum": [
+                "default"
+            ]
+        },
+        "RemoveEndDate": {
+            "type": "boolean"
+        },
+        "NoRemoveEndDate": {
+            "type": "boolean"
+        }
+    },
+    "definitions": {
+        "InstanceTypeSpecification": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "InstanceType": {
+                    "type": "string"
+                },
+                "InstancePlatform": {
+                    "type": "string"
+                },
+                "Weight": {
+                    "type": "number"
+                },
+                "AvailabilityZone": {
+                    "type": "string"
+                },
+                "AvailabilityZoneId": {
+                    "type": "string"
+                },
+                "EbsOptimized": {
+                    "type": "boolean"
+                },
+                "Priority": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 999
+                }
+            }
+        },
+        "Tag": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "Value": {
+                    "type": "string"
+                },
+                "Key": {
+                    "type": "string"
+                }
+            },
+            "required": [
+                "Value",
+                "Key"
+            ]
+        },
+        "TagSpecification": {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+                "ResourceType": {
+                    "type": "string",
+                    "enum": [
+                        "client-vpn-endpoint",
+                        "customer-gateway",
+                        "dedicated-host",
+                        "dhcp-options",
+                        "egress-only-internet-gateway",
+                        "elastic-gpu",
+                        "elastic-ip",
+                        "export-image-task",
+                        "export-instance-task",
+                        "fleet",
+                        "capacity-reservation",
+                        "capacity-reservation-fleet",
+                        "fpga-image",
+                        "host-reservation",
+                        "image",
+                        "import-image-task",
+                        "import-snapshot-task",
+                        "instance",
+                        "internet-gateway",
+                        "key-pair",
+                        "launch-template",
+                        "local-gateway-route-table-vpc-association",
+                        "natgateway",
+                        "network-acl",
+                        "network-insights-analysis",
+                        "network-insights-path",
+                        "network-interface",
+                        "placement-group",
+                        "reserved-instances",
+                        "route-table",
+                        "security-group",
+                        "snapshot",
+                        "spot-fleet-request",
+                        "spot-instances-request",
+                        "subnet",
+                        "traffic-mirror-filter",
+                        "traffic-mirror-session",
+                        "traffic-mirror-target",
+                        "transit-gateway",
+                        "transit-gateway-attachment",
+                        "transit-gateway-connect-peer",
+                        "transit-gateway-multicast-domain",
+                        "transit-gateway-route-table",
+                        "volume",
+                        "vpc",
+                        "vpc-flow-log",
+                        "vpc-peering-connection",
+                        "vpn-connection",
+                        "vpn-gateway"
+                    ]
+                },
+                "Tags": {
+                    "type": "array",
+                    "uniqueItems": false,
+                    "items": {
+                        "$ref": "#/definitions/Tag"
+                    }
+                }
+            }
+        }
+    },
+    "required": [
+        "InstanceTypeSpecifications",
+        "TotalTargetCapacity"
+    ],
+    "createOnlyProperties": [
+        "/properties/InstanceTypeSpecifications",
+        "/properties/AllocationStrategy",
+        "/properties/TagSpecifications",
+        "/properties/TotalTargetCapacity",
+        "/properties/EndDate",
+        "/properties/Tenancy",
+        "/properties/InstanceMatchCriteria"
+    ],
+    "primaryIdentifier": [
+        "/properties/CapacityReservationFleetId"
+    ],
+    "readOnlyProperties": [
+        "/properties/CapacityReservationFleetId"
+    ],
+    "handlers": {
+        "create": {
+            "permissions": [
+                "ec2:CreateCapacityReservationFleet",
+                "ec2:DescribeCapacityReservationFleets"
+            ]
+        },
+        "delete": {
+            "permissions": [
+                "ec2:DescribeCapacityReservationFleets",
+                "ec2:CancelCapacityReservationFleets"
+            ]
+        },
+        "list": {
+            "permissions": [
+                "ec2:DescribeCapacityReservationFleets"
+            ]
+        },
+        "read": {
+            "permissions": [
+                "ec2:DescribeCapacityReservationFleets"
+            ]
+        },
+        "update": {
+            "permissions": [
+                "ec2:ModifyCapacityReservationFleet",
+                "ec2:DescribeCapacityReservationFleets"
+            ]
+        }
+    }
+}

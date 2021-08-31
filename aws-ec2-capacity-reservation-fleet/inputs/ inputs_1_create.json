@@ -1,0 +1,22 @@
+{
+  "AllocationStrategy" : "prioritized",
+  "InstanceTypeSpecifications" : [
+    {
+      "InstanceType" : "c4.large",
+      "InstancePlatform" : "Linux/UNIX",
+      "AvailabilityZone" : "us-east-1a",
+      "Weight" : 2.1,
+      "Priority": 1
+    },
+    {
+      "InstanceType" : "c5.large",
+      "InstancePlatform" : "Linux/UNIX",
+      "AvailabilityZone" : "us-east-1a",
+      "Weight" : 2.1,
+      "Priority": 2
+    }
+  ],
+  "Tenancy" : "default",
+  "TotalTargetCapacity" : 2,
+  "InstanceMatchCriteria" : "open"
+}
