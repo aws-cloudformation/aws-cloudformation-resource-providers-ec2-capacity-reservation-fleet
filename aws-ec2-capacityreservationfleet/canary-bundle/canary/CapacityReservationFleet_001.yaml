@@ -2,22 +2,26 @@ AWSTemplateFormatVersion: 2010-09-09
 Resources:
   EC2CapacityReservationFleetCanary:
     Type: 'AWS::EC2::CapacityReservationFleet'
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3001
     Properties:
-      AllocationStrategy: "prioritized",
+      AllocationStrategy: "prioritized"
       InstanceTypeSpecifications:
         - InstanceTypeSpecification:
-            InstanceType: "c4.large",
-            InstancePlatform: "Linux/UNIX",
-            AvailabilityZone: "us-east-1a",
-            Weight: 2.1,
+            InstanceType: "c4.large"
+            InstancePlatform: "Linux/UNIX"
+            AvailabilityZone: "us-east-1a"
+            Weight: 2.1
             Priority: 1
         - InstanceTypeSpecification:
-            InstanceType: "c5.large",
-            InstancePlatform: "Linux/UNIX",
-            AvailabilityZone: "us-east-1a",
-            Weight: 2.1,
+            InstanceType: "c5.large"
+            InstancePlatform: "Linux/UNIX"
+            AvailabilityZone: "us-east-1a"
+            Weight: 2.1
             Priority: 1
-      ],
-      Tenancy: "default",
-      TotalTargetCapacity: 2,
+      Tenancy: "default"
+      TotalTargetCapacity: 2
       InstanceMatchCriteria: "open"

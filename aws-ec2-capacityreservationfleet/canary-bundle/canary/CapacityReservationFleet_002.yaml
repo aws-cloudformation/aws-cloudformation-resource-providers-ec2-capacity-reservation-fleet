@@ -2,5 +2,10 @@ AWSTemplateFormatVersion: 2010-09-09
 Resources:
   EC2CapacityReservationFleetCanary:
     Type: 'AWS::EC2::CapacityReservationFleet'
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3001
     Properties:
       "TotalTargetCapacity" : 3
