@@ -28,14 +28,12 @@ sourceSets.main.resources {
 
 dependencies {
     compile brazilGradle.build()
-
     testCompile brazilGradle.testbuild()
 
 }
 
 test {
     useJUnitPlatform()
-    environment "AWS_REGION", "us-west-2"
 }
 
 def cfn_command = "${brazilGradle.path('[AWSCloudFormationRPDKJavaPluginTool]run.runtimefarm')}/bin/cfn"

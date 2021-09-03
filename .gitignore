@@ -48,4 +48,4 @@ out/
 .settings
 .project
 
-aws-ec2-capacity-reservation-fleet/resource-role.yaml
+aws-ec2-capacityreservationfleet/resource-role.yaml
