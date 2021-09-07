@@ -10,8 +10,6 @@ import software.amazon.cloudformation.proxy.ProgressEvent;
 import software.amazon.cloudformation.proxy.OperationStatus;
 import software.amazon.cloudformation.proxy.ProxyClient;
 import software.amazon.cloudformation.proxy.ResourceHandlerRequest;
-import software.amazon.ec2.capacityreservationfleet.BaseHandlerStd;
-import software.amazon.ec2.capacityreservationfleet.CallbackContext;
 
 import java.util.List;
 
