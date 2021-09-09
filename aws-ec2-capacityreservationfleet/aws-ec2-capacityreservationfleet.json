@@ -165,15 +165,10 @@
             }
         }
     },
-    "required": [
-        "InstanceTypeSpecifications",
-        "TotalTargetCapacity"
-    ],
     "createOnlyProperties": [
         "/properties/InstanceTypeSpecifications",
         "/properties/AllocationStrategy",
         "/properties/TagSpecifications",
-        "/properties/TotalTargetCapacity",
         "/properties/EndDate",
         "/properties/Tenancy",
         "/properties/InstanceMatchCriteria"

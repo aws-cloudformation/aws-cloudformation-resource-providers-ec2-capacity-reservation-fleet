@@ -2,17 +2,16 @@ package software.amazon.ec2.capacityreservationfleet;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
 import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
+import software.amazon.awssdk.services.ec2.model.CapacityReservationFleet;
 import software.amazon.awssdk.services.ec2.model.CapacityReservationFleetState;
-import software.amazon.awssdk.services.ec2.model.CreateCapacityReservationFleetRequest;
-import software.amazon.awssdk.services.ec2.model.CreateCapacityReservationFleetResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeCapacityReservationFleetsRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeCapacityReservationFleetsResponse;
-import software.amazon.awssdk.services.ec2.model.FleetCapacityReservation;
 import software.amazon.awssdk.services.ec2.model.ModifyCapacityReservationFleetRequest;
 import software.amazon.awssdk.services.ec2.model.ModifyCapacityReservationFleetResponse;
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
@@ -32,8 +31,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -108,13 +105,16 @@ public class UpdateHandlerTest extends AbstractTestBase {
                 .desiredResourceState(model)
                 .build();
 
+        when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(
+                        Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build());
         final AwsServiceException serviceException = AwsServiceException.builder().message("message").build();
         when(ec2Client.modifyCapacityReservationFleet(any(ModifyCapacityReservationFleetRequest.class))).thenThrow(serviceException);
 
         final ProgressEvent<ResourceModel, CallbackContext> response = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
         verify(ec2Client, atLeastOnce()).modifyCapacityReservationFleet(any(ModifyCapacityReservationFleetRequest.class));
-        verify(ec2Client, never()).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
+        verify(ec2Client, atLeastOnce()).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
 
         assertThat(response).isNotNull();
         assertThat(response.getStatus()).isEqualTo(OperationStatus.FAILED);
@@ -132,12 +132,15 @@ public class UpdateHandlerTest extends AbstractTestBase {
                 .desiredResourceState(model)
                 .build();
 
+        when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(
+                        Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build());
         when(ec2Client.modifyCapacityReservationFleet(any(ModifyCapacityReservationFleetRequest.class))).thenReturn(ModifyCapacityReservationFleetResponse.builder().returnValue(false).build());
 
         final ProgressEvent<ResourceModel, CallbackContext> result = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
+        verify(ec2Client, atLeastOnce()).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
         verify(ec2Client, atLeastOnce()).modifyCapacityReservationFleet(any(ModifyCapacityReservationFleetRequest.class));
-        verify(ec2Client, times(0)).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(OperationStatus.FAILED);
@@ -156,12 +159,13 @@ public class UpdateHandlerTest extends AbstractTestBase {
 
         when(ec2Client.modifyCapacityReservationFleet(any(ModifyCapacityReservationFleetRequest.class))).thenReturn(ModifyCapacityReservationFleetResponse.builder().returnValue(true).build());
         when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build())
                 .thenThrow(AwsServiceException.builder().message("serviceException").build());
 
         final ProgressEvent<ResourceModel, CallbackContext> result = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
+        verify(ec2Client, atLeastOnce()).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
         verify(ec2Client, atLeastOnce()).modifyCapacityReservationFleet(any(ModifyCapacityReservationFleetRequest.class));
-        verify(ec2Client, times(1)).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(OperationStatus.FAILED);
@@ -180,11 +184,12 @@ public class UpdateHandlerTest extends AbstractTestBase {
 
         when(ec2Client.modifyCapacityReservationFleet(any(ModifyCapacityReservationFleetRequest.class))).thenReturn(ModifyCapacityReservationFleetResponse.builder().returnValue(true).build());
         when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build())
                 .thenThrow(AwsServiceException.builder().message("err").awsErrorDetails(AwsErrorDetails.builder().errorCode(UNAUTHORIZED_CODE).build()).build());
 
         final ProgressEvent<ResourceModel, CallbackContext> result = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
         verify(ec2Client, atLeastOnce()).modifyCapacityReservationFleet(any(ModifyCapacityReservationFleetRequest.class));
-        verify(ec2Client, times(1)).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
+        verify(ec2Client, atLeastOnce()).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(OperationStatus.FAILED);

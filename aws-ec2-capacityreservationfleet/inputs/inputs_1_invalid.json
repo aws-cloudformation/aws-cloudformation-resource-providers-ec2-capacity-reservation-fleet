@@ -16,6 +16,5 @@
       "Priority": 2
     }
   ],
-  "Tenancy" : "default",
-  "TotalTargetCapacity" : 2
+  "Tenancy" : "default"
 }

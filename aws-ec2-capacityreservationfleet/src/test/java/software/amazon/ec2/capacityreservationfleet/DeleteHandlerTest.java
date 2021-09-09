@@ -9,10 +9,9 @@ import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.services.ec2.Ec2Client;
 import software.amazon.awssdk.services.ec2.model.CancelCapacityReservationFleetsRequest;
 import software.amazon.awssdk.services.ec2.model.CancelCapacityReservationFleetsResponse;
+import software.amazon.awssdk.services.ec2.model.CapacityReservationFleet;
 import software.amazon.awssdk.services.ec2.model.CapacityReservationFleetCancellationState;
 import software.amazon.awssdk.services.ec2.model.CapacityReservationFleetState;
-import software.amazon.awssdk.services.ec2.model.CreateCapacityReservationFleetRequest;
-import software.amazon.awssdk.services.ec2.model.CreateCapacityReservationFleetResponse;
 import software.amazon.awssdk.services.ec2.model.DescribeCapacityReservationFleetsRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeCapacityReservationFleetsResponse;
 import software.amazon.awssdk.services.ec2.model.FailedCapacityReservationFleetCancellationResult;
@@ -83,7 +82,10 @@ public class DeleteHandlerTest extends AbstractTestBase {
                         .totalTargetCapacity(5)
                         .build()))
                 .build();
-        when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class))).thenReturn(describeResponse);
+
+        when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build())
+                .thenReturn(describeResponse);
         when(ec2Client.cancelCapacityReservationFleets(any(CancelCapacityReservationFleetsRequest.class))).thenReturn(CancelCapacityReservationFleetsResponse.builder()
                 .successfulFleetCancellations(CapacityReservationFleetCancellationState.builder().capacityReservationFleetId(crFleetId).build()).build());
 
@@ -109,6 +111,9 @@ public class DeleteHandlerTest extends AbstractTestBase {
                 .desiredResourceState(model)
                 .build();
 
+        when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build());
+
         final AwsServiceException serviceException = AwsServiceException.builder().message("serviceException").build();
         when(ec2Client.cancelCapacityReservationFleets(any(CancelCapacityReservationFleetsRequest.class))).thenThrow(serviceException);
 
@@ -132,6 +137,8 @@ public class DeleteHandlerTest extends AbstractTestBase {
                 .desiredResourceState(model)
                 .build();
 
+        when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build());
         when(ec2Client.cancelCapacityReservationFleets(any(CancelCapacityReservationFleetsRequest.class))).thenReturn(null);
 
         try {
@@ -163,7 +170,10 @@ public class DeleteHandlerTest extends AbstractTestBase {
                         .totalTargetCapacity(5)
                         .build()))
                 .build();
-        when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class))).thenReturn(describeResponseInCancelling).thenReturn(describeResponseInCancelled);
+        when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build())
+                .thenReturn(describeResponseInCancelling)
+                .thenReturn(describeResponseInCancelled);
         when(ec2Client.cancelCapacityReservationFleets(any(CancelCapacityReservationFleetsRequest.class))).thenReturn(CancelCapacityReservationFleetsResponse.builder()
                 .successfulFleetCancellations(CapacityReservationFleetCancellationState.builder().capacityReservationFleetId(crFleetId).build()).build());
 
@@ -192,6 +202,7 @@ public class DeleteHandlerTest extends AbstractTestBase {
         when(ec2Client.cancelCapacityReservationFleets(any(CancelCapacityReservationFleetsRequest.class))).thenReturn(CancelCapacityReservationFleetsResponse.builder()
                 .successfulFleetCancellations(CapacityReservationFleetCancellationState.builder().capacityReservationFleetId(crFleetId).build()).build());
         when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build())
                 .thenThrow(AwsServiceException.builder().message("serviceException").build());
 
         final ProgressEvent<ResourceModel, CallbackContext> result = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
@@ -217,13 +228,14 @@ public class DeleteHandlerTest extends AbstractTestBase {
         when(ec2Client.cancelCapacityReservationFleets(any(CancelCapacityReservationFleetsRequest.class))).thenReturn(CancelCapacityReservationFleetsResponse.builder()
                 .successfulFleetCancellations(CapacityReservationFleetCancellationState.builder().capacityReservationFleetId(crFleetId).build()).build());
         when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build())
                 .thenReturn(DescribeCapacityReservationFleetsResponse.builder().build())
                 .thenReturn(createDescribeResponse(CapacityReservationFleetState.CANCELLED, crFleetId));
 
         final ProgressEvent<ResourceModel, CallbackContext> result = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
 
         verify(ec2Client, atLeastOnce()).cancelCapacityReservationFleets(any(CancelCapacityReservationFleetsRequest.class));
-        verify(ec2Client, times(2)).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
+        verify(ec2Client, times(3)).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(OperationStatus.SUCCESS);
@@ -240,6 +252,9 @@ public class DeleteHandlerTest extends AbstractTestBase {
         final ResourceHandlerRequest<ResourceModel> request = ResourceHandlerRequest.<ResourceModel>builder()
                 .desiredResourceState(model)
                 .build();
+
+        when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build());
 
         when(ec2Client.cancelCapacityReservationFleets(any(CancelCapacityReservationFleetsRequest.class))).thenReturn(CancelCapacityReservationFleetsResponse.builder()
                 .failedFleetCancellations(Arrays.asList(FailedCapacityReservationFleetCancellationResult.builder().capacityReservationFleetId("crf-1234").build()))
@@ -269,11 +284,12 @@ public class DeleteHandlerTest extends AbstractTestBase {
         when(ec2Client.cancelCapacityReservationFleets(any(CancelCapacityReservationFleetsRequest.class))).thenReturn(CancelCapacityReservationFleetsResponse.builder()
                 .successfulFleetCancellations(CapacityReservationFleetCancellationState.builder().capacityReservationFleetId(crFleetId).build()).build());
         when(ec2Client.describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class)))
+                .thenReturn(DescribeCapacityReservationFleetsResponse.builder().capacityReservationFleets(Arrays.asList(CapacityReservationFleet.builder().capacityReservationFleetId("crf-1234").state(CapacityReservationFleetState.ACTIVE).build())).build())
                 .thenThrow(AwsServiceException.builder().message("err").awsErrorDetails(AwsErrorDetails.builder().errorCode(UNAUTHORIZED_CODE).build()).build());
 
         final ProgressEvent<ResourceModel, CallbackContext> result = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
         verify(ec2Client, atLeastOnce()).cancelCapacityReservationFleets(any(CancelCapacityReservationFleetsRequest.class));
-        verify(ec2Client, times(1)).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
+        verify(ec2Client, times(2)).describeCapacityReservationFleets(any(DescribeCapacityReservationFleetsRequest.class));
 
         assertThat(result).isNotNull();
         assertThat(result.getStatus()).isEqualTo(OperationStatus.FAILED);

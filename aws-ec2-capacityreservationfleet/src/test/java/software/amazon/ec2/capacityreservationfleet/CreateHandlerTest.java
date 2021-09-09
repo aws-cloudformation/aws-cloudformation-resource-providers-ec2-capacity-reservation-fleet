@@ -2,6 +2,7 @@ package software.amazon.ec2.capacityreservationfleet;
 
 import java.time.Duration;
 import java.util.Arrays;
+import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
 import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
@@ -13,6 +14,8 @@ import software.amazon.awssdk.services.ec2.model.CreateCapacityReservationFleetR
 import software.amazon.awssdk.services.ec2.model.DescribeCapacityReservationFleetsRequest;
 import software.amazon.awssdk.services.ec2.model.DescribeCapacityReservationFleetsResponse;
 import software.amazon.awssdk.services.ec2.model.FleetCapacityReservation;
+import software.amazon.cloudformation.exceptions.CfnNotFoundException;
+import software.amazon.cloudformation.exceptions.CfnNotStabilizedException;
 import software.amazon.cloudformation.proxy.AmazonWebServicesClientProxy;
 import software.amazon.cloudformation.proxy.HandlerErrorCode;
 import software.amazon.cloudformation.proxy.OperationStatus;
@@ -34,6 +37,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static software.amazon.cloudformation.proxy.HandlerErrorCode.NotFound;
+import static software.amazon.cloudformation.proxy.HandlerErrorCode.NotStabilized;
 import static software.amazon.ec2.capacityreservationfleet.Translator.UNAUTHORIZED_CODE;
 
 @ExtendWith(MockitoExtension.class)
@@ -164,15 +169,13 @@ public class CreateHandlerTest extends AbstractTestBase {
                 .state(CapacityReservationFleetState.SUBMITTED).build();
         when(ec2Client.createCapacityReservationFleet(any(CreateCapacityReservationFleetRequest.class))).thenReturn(response);
 
-        final ProgressEvent<ResourceModel, CallbackContext> result = handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+        try {
+            handler.handleRequest(proxy, request, new CallbackContext(), proxyClient, logger);
+        } catch (CfnNotFoundException ex) {
+            assertThat(ex.getErrorCode()).isEqualTo(NotFound);
+        }
 
         verify(ec2Client, atLeastOnce()).createCapacityReservationFleet(any(CreateCapacityReservationFleetRequest.class));
-
-        assertThat(result).isNotNull();
-        assertThat(result.getStatus()).isEqualTo(OperationStatus.FAILED);
-        assertThat(result.getCallbackDelaySeconds()).isEqualTo(0);
-        Assertions.assertThat(result.getResourceModels()).isNull();
-        assertThat(result.getErrorCode()).isEqualTo(HandlerErrorCode.ServiceInternalError);
     }
 
     @Test

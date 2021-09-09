@@ -2,7 +2,6 @@ package software.amazon.ec2.capacityreservationfleet;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
-import software.amazon.awssdk.awscore.exception.AwsErrorDetails;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkException;
 import software.amazon.awssdk.services.ec2.model.CancelCapacityReservationFleetsRequest;
@@ -55,6 +54,7 @@ public class Translator {
   public static CreateCapacityReservationFleetRequest translateToCreateRequest(final ResourceModel model,
                                                     final ResourceHandlerRequest<ResourceModel> handlerRequest,
                                                     final Logger logger) {
+    logger.log(String.format("[INFO] translateToCreateRequest: %s", model));
     final CreateCapacityReservationFleetRequest.Builder requestBuilder = CreateCapacityReservationFleetRequest.builder();
       final List<ReservationFleetInstanceSpecification> reservationFleetInstanceSpecifications = new ArrayList<>();
       model.getInstanceTypeSpecifications().stream().forEach(spec -> {
@@ -92,11 +92,11 @@ public class Translator {
    * @param model resource model
    * @return awsRequest the aws service request to describe a resource
    */
-  public static DescribeCapacityReservationFleetsRequest translateToReadRequest(final ResourceModel model) {
+  public static DescribeCapacityReservationFleetsRequest translateToReadRequest(final ResourceModel model, final Logger logger) {
+    logger.log(String.format("[INFO] translateToReadRequest : %s", model));
     final String crFleetId = model.getCapacityReservationFleetId();
     if (crFleetId == null) {
-      throw AwsServiceException.builder().awsErrorDetails(AwsErrorDetails.builder()
-              .errorMessage("Resource id not found").errorCode(INVALID_CR_FLEET_ID_NOT_FOUND).build()).statusCode(500).build();
+      throw new CfnNotFoundException(ResourceModel.TYPE_NAME, null);
     }
 
     return DescribeCapacityReservationFleetsRequest.builder()
@@ -118,7 +118,7 @@ public class Translator {
                                                           final ResourceModel desiredResourceState) {
     if (desiredResourceState == null) {
       logger.log("[ERROR] desiredResourceState is null");
-      throw new CfnServiceInternalErrorException("resource is not in a desired state.");
+      throw new CfnServiceInternalErrorException("Resource is not in a desired state.");
     }
 
     validateReadResponse(response, logger);
@@ -184,7 +184,8 @@ public class Translator {
    * @param model resource model
    * @return awsRequest the aws service request to delete a resource
    */
-  public static CancelCapacityReservationFleetsRequest translateToDeleteRequest(final ResourceModel model) {
+  public static CancelCapacityReservationFleetsRequest translateToDeleteRequest(final ResourceModel model, final Logger logger) {
+    logger.log(String.format("[INFO] translateToDeleteRequest : %s", model));
     return CancelCapacityReservationFleetsRequest.builder().capacityReservationFleetIds(model.getCapacityReservationFleetId()).build();
   }
 
@@ -339,7 +340,7 @@ public class Translator {
       return translateSdkExceptionToFailure((SdkException)ex);
     }
 
-    return ProgressEvent.defaultFailureHandler(ex, HandlerErrorCode.InternalFailure);
+    return ProgressEvent.defaultFailureHandler(ex, HandlerErrorCode.ServiceInternalError);
   }
 
   private static <T> Stream<T> streamOfOrEmpty(final Collection<T> collection) {
@@ -372,21 +373,23 @@ public class Translator {
     }
 
     response.capacityReservationFleets().stream().forEach(fleet -> {
-      if (fleet.state().equals(CapacityReservationFleetState.FAILED) ||
-              fleet.state().equals(CapacityReservationFleetState.CANCELLED) ||
-              fleet.state().equals(CapacityReservationFleetState.EXPIRED)) {
-        logger.log(String.format("[INFO] CRFleet %s is not in an active state. state: %s. Throwing NotFound.", fleet.capacityReservationFleetId(), fleet.state()));
-
+      logger.log(String.format("[INFO] checking fleet status: %s", fleet.state()));
+      if (CapacityReservationFleetState.FAILED.equals(fleet.state()) ||
+              CapacityReservationFleetState.CANCELLED.equals(fleet.state()) ||
+              CapacityReservationFleetState.EXPIRED.equals(fleet.state())) {
+        logger.log(String.format("[INFO] CRFleet %s is not in an active state.", fleet.capacityReservationFleetId()));
         throw new CfnNotFoundException(ResourceModel.TYPE_NAME, fleet.capacityReservationFleetId());
-      } else if (fleet.state().equals(CapacityReservationFleetState.SUBMITTED) ||
-              fleet.state().equals(CapacityReservationFleetState.CANCELLING) ||
-              fleet.state().equals(CapacityReservationFleetState.EXPIRING) ||
-              fleet.state().equals(CapacityReservationFleetState.MODIFYING)) {
+      } else if (CapacityReservationFleetState.SUBMITTED.equals(fleet.state()) ||
+              CapacityReservationFleetState.CANCELLING.equals(fleet.state()) ||
+              CapacityReservationFleetState.EXPIRING.equals(fleet.state()) ||
+              CapacityReservationFleetState.MODIFYING.equals(fleet.state())) {
         logger.log(String.format("[INFO] CRFleet %s is in a in_progress state. state: %s. Throwing NotStabilizedException.",
                 fleet.capacityReservationFleetId(), fleet.state()));
 
         throw new CfnNotStabilizedException(ResourceModel.TYPE_NAME, fleet.capacityReservationFleetId());
       }
     });
+
+    logger.log(String.format("[INFO] Validation done for DescribeCapacityReservationFleetsResponse: %s", response));
   }
 }

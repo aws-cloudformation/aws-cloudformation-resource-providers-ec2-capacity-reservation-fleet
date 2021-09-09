@@ -48,9 +48,9 @@ public class CreateHandler extends BaseHandlerStd {
                                 .stabilize((awsRequest, awsResponse, client, model, context) -> {
                                     boolean stabilized = false;
                                     try {
-                                        logger.log(String.format("[INFO] stabilizing crFleet %s in state %s ", awsResponse.capacityReservationFleetId(), awsResponse.state()));
+                                        logger.log(String.format("[INFO] stabilizing. crFleet %s is in state - %s ", awsResponse.capacityReservationFleetId(), awsResponse.state()));
                                         model.setCapacityReservationFleetId(awsResponse.capacityReservationFleetId());
-                                        final DescribeCapacityReservationFleetsRequest describeCapacityReservationFleetsRequest = Translator.translateToReadRequest(model);
+                                        final DescribeCapacityReservationFleetsRequest describeCapacityReservationFleetsRequest = Translator.translateToReadRequest(model, logger);
                                         final DescribeCapacityReservationFleetsResponse describeCapacityReservationFleetsResponse = describeCapacityReservationFleets(describeCapacityReservationFleetsRequest, proxyClient, logger);
 
                                         if (describeCapacityReservationFleetsResponse.hasCapacityReservationFleets()) {
@@ -71,8 +71,7 @@ public class CreateHandler extends BaseHandlerStd {
                                     }
                                 })
                                 .handleError((awsRequest, exception, client, model, context) -> Translator.translateToFailure(exception))
-                                .progress()
-                )
+                                .progress())
                 .then(progress -> new ReadHandler().handleRequest(proxy, request, callbackContext, proxyClient, logger));
     }
 }

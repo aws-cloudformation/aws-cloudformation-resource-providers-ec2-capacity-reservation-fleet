@@ -3,6 +3,7 @@ package software.amazon.ec2.capacityreservationfleet;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
 import software.amazon.awssdk.awscore.exception.AwsErrorDetails;

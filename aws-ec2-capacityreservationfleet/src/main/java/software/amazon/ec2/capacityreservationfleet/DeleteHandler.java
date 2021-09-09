@@ -29,8 +29,15 @@ public class DeleteHandler extends BaseHandlerStd {
 
         return ProgressEvent.progress(request.getDesiredResourceState(), callbackContext)
                 .then(progress ->
-                        proxy.initiate("AWS-EC2-CapacityReservationFleet::Delete", proxyClient, progress.getResourceModel(), progress.getCallbackContext())
-                                .translateToServiceRequest(Translator::translateToDeleteRequest)
+                        proxy.initiate("AWS-EC2-CapacityReservationFleet::Delete-exist", proxyClient, progress.getResourceModel(), progress.getCallbackContext())
+                                .translateToServiceRequest((model) -> Translator.translateToReadRequest(model, logger))
+                                .makeServiceCall((describeRequest, ec2ClientProxyClient) -> describeCapacityReservationFleets(describeRequest, ec2ClientProxyClient, logger))
+                                .handleError((awsRequest, exception, client, model, context) -> handleDescribeCapacityReservationFleetsError(awsRequest, exception, proxyClient, model, context))
+                                .done((describeFleetsRequest, describeFleetsResponse, client, model, context) ->
+                                        Translator.translateToResourceFoundProgress(describeFleetsResponse, logger, context, model)))
+                .then(progress ->
+                        proxy.initiate("AWS-EC2-CapacityReservationFleet::Delete-delete", proxyClient, progress.getResourceModel(), progress.getCallbackContext())
+                                .translateToServiceRequest((model) -> Translator.translateToDeleteRequest(model, logger))
                                 .makeServiceCall((awsRequest, client) -> {
                                     CancelCapacityReservationFleetsResponse response = null;
                                     final String crFleetId = awsRequest.capacityReservationFleetIds().get(0);
@@ -58,7 +65,7 @@ public class DeleteHandler extends BaseHandlerStd {
                                                     .errorMessage("CancelCapacityReservationFleets failed.").build()).statusCode(500).build();
                                         }
 
-                                        final DescribeCapacityReservationFleetsRequest describeCapacityReservationFleetsRequest = Translator.translateToReadRequest(model);
+                                        final DescribeCapacityReservationFleetsRequest describeCapacityReservationFleetsRequest = Translator.translateToReadRequest(model, logger);
                                         final DescribeCapacityReservationFleetsResponse describeCapacityReservationFleetsResponse = describeCapacityReservationFleets(describeCapacityReservationFleetsRequest, proxyClient, logger);
 
                                         if (describeCapacityReservationFleetsResponse.hasCapacityReservationFleets()) {

@@ -63,7 +63,7 @@ _Update requires_: [Replacement](https://docs.aws.amazon.com/AWSCloudFormation/l
 
 #### InstanceTypeSpecifications
 
-_Required_: Yes
+_Required_: No
 
 _Type_: List of <a href="instancetypespecification.md">InstanceTypeSpecification</a>
 
@@ -71,11 +71,11 @@ _Update requires_: [Replacement](https://docs.aws.amazon.com/AWSCloudFormation/l
 
 #### TotalTargetCapacity
 
-_Required_: Yes
+_Required_: No
 
 _Type_: Integer
 
-_Update requires_: [Replacement](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-replacement)
+_Update requires_: [No interruption](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/using-cfn-updating-stacks-update-behaviors.html#update-no-interrupt)
 
 #### EndDate
 
