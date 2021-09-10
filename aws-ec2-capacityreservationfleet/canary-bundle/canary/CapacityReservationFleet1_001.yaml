@@ -1,0 +1,69 @@
+AWSTemplateFormatVersion: 2010-09-09
+Mappings:
+  RegionMap:
+    eu-central-1:
+      AZ: "eu-central-1a"
+    us-west-2:
+      AZ: "us-west-2a"
+    ap-northeast-1:
+      AZ: "ap-northeast-1a"
+    ap-southeast-1:
+      AZ: "ap-southeast-1a"
+    us-east-1:
+      AZ: "us-east-1a"
+    ap-south-1:
+      AZ: "ap-south-1a"
+    ap-southeast-2:
+      AZ: "ap-southeast-2a"
+    eu-west-1:
+      AZ: "eu-west-1a"
+    sa-east-1:
+      AZ: "sa-east-1a"
+    ap-northeast-3:
+      AZ: "ap-northeast-3a"
+    ca-central-1:
+      AZ: "ca-central-1a"
+    eu-west-2:
+      AZ: "eu-west-2a"
+    us-east-2:
+      AZ: "us-east-2a"
+    us-west-1:
+      AZ: "us-west-1a"
+    af-south-1:
+      AZ: "af-south-1a"
+    ap-east-1:
+      AZ: "ap-east-1a"
+    ap-northeast-2:
+      AZ: "ap-northeast-2a"
+    eu-north-1:
+      AZ: "eu-north-1a"
+    eu-west-3:
+      AZ: "eu-west-3a"
+    me-south-1:
+      AZ: "me-south-1a"
+    eu-south-1:
+      AZ: "eu-south-1a"
+Resources:
+  EC2CapacityReservationFleetCanary:
+    Type: 'AWS::EC2::CapacityReservationFleet'
+    Metadata:
+      cfn-lint:
+        config:
+          ignore_checks:
+            - E3001
+    Properties:
+      AllocationStrategy: "prioritized"
+      InstanceTypeSpecifications:
+        - InstanceType: "c4.large"
+          InstancePlatform: "Linux/UNIX"
+          AvailabilityZone: !FindInMap [RegionMap, !Ref "AWS::Region", AZ]
+          Weight: 2.1
+          Priority: 1
+        - InstanceType: "c5.large"
+          InstancePlatform: "Linux/UNIX"
+          AvailabilityZone: !FindInMap [RegionMap, !Ref "AWS::Region", AZ]
+          Weight: 2.1
+          Priority: 1
+      Tenancy: "default"
+      TotalTargetCapacity: 1
+      InstanceMatchCriteria: "open"

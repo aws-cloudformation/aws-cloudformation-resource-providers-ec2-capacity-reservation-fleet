@@ -4,7 +4,7 @@
     {
       "InstanceType" : "c4.large",
       "InstancePlatform" : "Linux/UNIX",
-      "AvailabilityZone" : "us-east-1a",
+      "AvailabilityZone" : "{{ExportedAvailabilityZone}}",
       "Weight" : 2.1,
       "Priority": 1
     }
