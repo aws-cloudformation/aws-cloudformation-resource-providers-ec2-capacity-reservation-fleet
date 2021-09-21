@@ -28,7 +28,7 @@ Mappings:
     us-east-2:
       AZ: "us-east-2a"
     us-west-1:
-      AZ: "us-west-1a"
+      AZ: "us-west-1b"
     af-south-1:
       AZ: "af-south-1a"
     ap-east-1:
