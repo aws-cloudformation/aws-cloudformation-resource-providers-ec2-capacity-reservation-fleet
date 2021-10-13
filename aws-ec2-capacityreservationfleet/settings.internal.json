@@ -1,5 +1,0 @@
-{
-  "FasPolicyPath": {
-    "aws": "/policies/AuthRuntime/authNPolicy/cloudformation/aws-ec2-capacity-reservation-fleet.2021-09-02-21-46-21"
-  }
-}

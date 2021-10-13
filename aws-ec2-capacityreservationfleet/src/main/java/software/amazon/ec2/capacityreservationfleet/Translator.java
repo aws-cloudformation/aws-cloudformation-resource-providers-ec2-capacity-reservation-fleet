@@ -252,7 +252,7 @@ public class Translator {
   }
 
   /**
-   * inject tag sepcifications to request object.
+   * Inject tag specifications into request object.
    *
    * @param handlerRequest
    * @param model
@@ -372,7 +372,7 @@ public class Translator {
       throw new CfnServiceInternalErrorException(message);
     }
 
-    response.capacityReservationFleets().stream().forEach(fleet -> {
+    response.capacityReservationFleets().forEach(fleet -> {
       logger.log(String.format("[INFO] checking fleet status: %s", fleet.state()));
       if (CapacityReservationFleetState.FAILED.equals(fleet.state()) ||
               CapacityReservationFleetState.CANCELLED.equals(fleet.state()) ||
