@@ -54,12 +54,22 @@ Resources:
     Properties:
       AllocationStrategy: "prioritized"
       InstanceTypeSpecifications:
+        - InstanceType: "t3.large"
+          InstancePlatform: "Linux/UNIX"
+          AvailabilityZone: !FindInMap [RegionMap, !Ref "AWS::Region", AZ]
+          Weight: 2.1
+          Priority: 1
         - InstanceType: "c4.large"
           InstancePlatform: "Linux/UNIX"
           AvailabilityZone: !FindInMap [RegionMap, !Ref "AWS::Region", AZ]
           Weight: 2.1
           Priority: 1
         - InstanceType: "c5.large"
+          InstancePlatform: "Linux/UNIX"
+          AvailabilityZone: !FindInMap [RegionMap, !Ref "AWS::Region", AZ]
+          Weight: 2.1
+          Priority: 1
+        - InstanceType: "m5.large"
           InstancePlatform: "Linux/UNIX"
           AvailabilityZone: !FindInMap [RegionMap, !Ref "AWS::Region", AZ]
           Weight: 2.1
