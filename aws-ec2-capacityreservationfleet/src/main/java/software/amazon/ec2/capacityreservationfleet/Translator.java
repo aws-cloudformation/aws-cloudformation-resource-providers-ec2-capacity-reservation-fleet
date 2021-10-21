@@ -26,8 +26,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -133,7 +135,7 @@ public class Translator {
       tagSpecifications = Arrays.asList(TagSpecification.builder().resourceType(CR_FLEET_TAG_RESOURCE_TYPE).tags(tags).build());
     }
 
-    final List<InstanceTypeSpecification> instanceTypeSpecifications = new ArrayList<>();
+    final Set<InstanceTypeSpecification> instanceTypeSpecifications = new HashSet<>();
 
     logger.log("[INFO] Mapping DescribeCapacityReservationFleets response to ResourceModel");
 

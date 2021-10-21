@@ -3,6 +3,7 @@ package software.amazon.ec2.capacityreservationfleet;
 import java.time.Duration;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.stream.Collectors;
 
 import org.assertj.core.api.Assertions;
@@ -56,12 +57,12 @@ public class ReadHandlerTest extends AbstractTestBase {
         proxyClient = MOCK_PROXY(proxy, ec2Client);
         model = ResourceModel.builder()
                 .capacityReservationFleetId(crFleetId)
-                .instanceTypeSpecifications(Arrays.asList(InstanceTypeSpecification.builder()
+                .instanceTypeSpecifications(new HashSet<>(Arrays.asList(InstanceTypeSpecification.builder()
                         .instanceType("m4.xlarge")
                         .availabilityZone("us-east-1")
                         .instancePlatform("linux")
                         .ebsOptimized(true)
-                        .build()))
+                        .build())))
                 .totalTargetCapacity(1)
                 .allocationStrategy("prioritized")
                 .instanceMatchCriteria("open")

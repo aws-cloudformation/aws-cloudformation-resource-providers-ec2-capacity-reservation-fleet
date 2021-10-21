@@ -7,27 +7,6 @@
       "AvailabilityZone": "{{ExportedAvailabilityZone}}",
       "Weight": 1.1,
       "Priority": 1
-    },
-    {
-      "InstanceType": "c4.large",
-      "InstancePlatform": "Linux/UNIX",
-      "AvailabilityZone": "{{ExportedAvailabilityZone}}",
-      "Weight": 1.1,
-      "Priority": 1
-    },
-    {
-      "InstanceType": "c5.large",
-      "InstancePlatform": "Linux/UNIX",
-      "AvailabilityZone": "{{ExportedAvailabilityZone}}",
-      "Weight": 1.1,
-      "Priority": 1
-    },
-    {
-      "InstanceType": "m5.large",
-      "InstancePlatform": "Linux/UNIX",
-      "AvailabilityZone": "{{ExportedAvailabilityZone}}",
-      "Weight": 1.1,
-      "Priority": 1
     }
   ],
   "Tenancy": "default",

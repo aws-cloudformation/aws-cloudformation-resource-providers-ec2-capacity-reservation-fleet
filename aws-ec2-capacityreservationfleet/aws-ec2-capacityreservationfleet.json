@@ -9,7 +9,7 @@
         },
         "TagSpecifications": {
             "type": "array",
-            "insertionOrder": true,
+            "insertionOrder": false,
             "uniqueItems": false,
             "items": {
                 "$ref": "#/definitions/TagSpecification"
@@ -17,7 +17,7 @@
         },
         "InstanceTypeSpecifications": {
             "type": "array",
-            "insertionOrder": true,
+            "insertionOrder": false,
             "uniqueItems": true,
             "maxItems": 50,
             "items": {
@@ -109,7 +109,7 @@
                 },
                 "Tags": {
                     "type": "array",
-                    "insertionOrder": true,
+                    "insertionOrder": false,
                     "uniqueItems": false,
                     "items": {
                         "$ref": "#/definitions/Tag"

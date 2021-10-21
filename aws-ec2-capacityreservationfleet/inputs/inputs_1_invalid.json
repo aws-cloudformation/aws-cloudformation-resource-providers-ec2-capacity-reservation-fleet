@@ -2,14 +2,7 @@
   "AllocationStrategy" : "prioritized",
   "InstanceTypeSpecifications" : [
     {
-      "InstanceType" : "c4.large",
-      "InstancePlatform" : "Linux/UNIX",
-      "AvailabilityZone" : "us-east-1a",
-      "Weight" : 1.1,
-      "Priority": 1
-    },
-    {
-      "InstanceType" : "c5.large",
+      "InstanceType" : "t3.large",
       "InstancePlatform" : "Linux/UNIX",
       "AvailabilityZone" : "us-east-1a",
       "Weight" : 1.3,
