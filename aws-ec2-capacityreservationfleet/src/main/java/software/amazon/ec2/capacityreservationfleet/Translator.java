@@ -22,6 +22,8 @@ import software.amazon.cloudformation.proxy.ProgressEvent;
 import software.amazon.awssdk.services.ec2.model.CapacityReservationFleetState;
 import software.amazon.cloudformation.proxy.ResourceHandlerRequest;
 
+import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -72,7 +74,7 @@ public class Translator {
       });
 
       requestBuilder.allocationStrategy(model.getAllocationStrategy());
-      requestBuilder.endDate(StringUtils.isBlank(model.getEndDate()) ? null : new Date(Integer.parseInt(model.getEndDate())).toInstant());
+      requestBuilder.endDate(getEndDate(model.getEndDate(), logger));
       requestBuilder.instanceMatchCriteria(model.getInstanceMatchCriteria());
       requestBuilder.tenancy(model.getTenancy());
       requestBuilder.totalTargetCapacity(model.getTotalTargetCapacity());
@@ -83,9 +85,14 @@ public class Translator {
       if (tags != null && tags.size() > 0) {
         requestBuilder.tagSpecifications(tags);
       }
-
       return requestBuilder.build();
+  }
 
+  private static Instant getEndDate(final String endDate, final Logger logger) {
+    if (endDate == null) {
+      return null;
+    }
+    return Instant.parse(endDate);
   }
 
   /**
@@ -293,20 +300,37 @@ public class Translator {
 
     if (tags.isEmpty()) {
       logger.log("No stack-level tags and system tags for CFN");
-    } else {
-      logger.log("CFN stack-level and system tags : " + tags);
-      fleetTagSpecifications.add(software.amazon.awssdk.services.ec2.model.TagSpecification.builder().resourceType(CR_FLEET_TAG_RESOURCE_TYPE).tags(tags).build());
     }
 
     // Get user-provided tags
     if (model.getTagSpecifications() != null && model.getTagSpecifications().size() > 0) {
-      fleetTagSpecifications.addAll(model.getTagSpecifications().stream().map(spec -> software.amazon.awssdk.services.ec2.model.TagSpecification.builder().resourceType(spec.getResourceType()).tags(
-              spec.getTags().stream().map(tag -> software.amazon.awssdk.services.ec2.model.Tag.builder().key(tag.getKey()).value(tag.getValue()).build())
-                      .collect(Collectors.toList())).build()).collect(Collectors.toList()));
+      for (TagSpecification tagSpecification : model.getTagSpecifications()) {
+        if (tagSpecification.getResourceType().equalsIgnoreCase(CR_FLEET_TAG_RESOURCE_TYPE)) {
+          tags.addAll(tagSpecification.getTags().stream().map(tag -> software.amazon.awssdk.services.ec2.model.Tag.builder()
+                  .key(tag.getKey())
+                  .value(tag.getValue())
+                  .build()).collect(Collectors.toList()));
+        } else {
+          fleetTagSpecifications.add(software.amazon.awssdk.services.ec2.model.TagSpecification.builder()
+                  .resourceType(tagSpecification.getResourceType())
+                  .tags(tagSpecification.getTags().stream().map(tag -> software.amazon.awssdk.services.ec2.model.Tag.builder()
+                          .key(tag.getKey())
+                          .value(tag.getValue())
+                          .build()).collect(Collectors.toList()))
+                  .build());
+        }
+      }
+    }
+
+    if (tags.isEmpty()) {
+      return fleetTagSpecifications;
     }
 
     logger.log("TagSpecifications to add : " + fleetTagSpecifications);
-
+    fleetTagSpecifications.add(software.amazon.awssdk.services.ec2.model.TagSpecification.builder()
+            .resourceType(CR_FLEET_TAG_RESOURCE_TYPE)
+            .tags(tags)
+            .build());
     return fleetTagSpecifications;
   }
 

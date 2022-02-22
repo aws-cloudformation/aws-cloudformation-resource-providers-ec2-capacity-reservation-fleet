@@ -73,7 +73,11 @@ public class CreateHandlerTest extends AbstractTestBase {
                 .allocationStrategy("prioritized")
                 .instanceMatchCriteria("open")
                 .capacityReservationFleetId(crFleetId)
-                .tagSpecifications(Arrays.asList(TagSpecification.builder().tags(Arrays.asList(Tag.builder().key("test key").value("Test").build())).build()))
+                .tagSpecifications(Arrays.asList(TagSpecification.builder().tags(Arrays.asList(Tag.builder()
+                                .key("test key")
+                                .value("Test")
+                                .build()))
+                        .resourceType("capacity-reservation-fleet").build()))
                 .build();
     }
 
