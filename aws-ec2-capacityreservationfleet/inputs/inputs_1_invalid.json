@@ -1,0 +1,13 @@
+{
+  "AllocationStrategy": "prioritized",
+  "InstanceTypeSpecifications": [
+    {
+      "InstanceType": "t3.large",
+      "InstancePlatform": "Linux/UNIX",
+      "AvailabilityZone": "us-east-1a",
+      "Weight": 1.3,
+      "Priority": 2
+    }
+  ],
+  "Tenancy": "default"
+}
