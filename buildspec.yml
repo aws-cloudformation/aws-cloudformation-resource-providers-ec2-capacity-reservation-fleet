@@ -8,6 +8,9 @@ phases:
       -  pip install pre-commit cloudformation-cli-java-plugin
   build:
     commands:
+      - pip install pyyaml --upgrade
+      - pip install --upgrade 'six==1.15.0'
+      - pip install --upgrade pre-commit cloudformation-cli cloudformation-cli-java-plugin
       - pre-commit run --all-files
       - |
         if [ "$(ls -A $CODEBUILD_SRC_DIR)" ]; then

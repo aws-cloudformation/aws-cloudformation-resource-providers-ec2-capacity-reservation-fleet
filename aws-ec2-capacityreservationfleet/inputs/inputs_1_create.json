@@ -1,0 +1,15 @@
+{
+  "AllocationStrategy": "prioritized",
+  "InstanceTypeSpecifications": [
+    {
+      "InstanceType": "t3.large",
+      "InstancePlatform": "Linux/UNIX",
+      "AvailabilityZone": "{{ExportedAvailabilityZone}}",
+      "Weight": 1.1,
+      "Priority": 1
+    }
+  ],
+  "Tenancy": "default",
+  "TotalTargetCapacity": 1,
+  "InstanceMatchCriteria": "open"
+}
