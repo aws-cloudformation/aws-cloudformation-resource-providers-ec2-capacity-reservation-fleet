@@ -8,6 +8,7 @@ phases:
       -  pip install pre-commit cloudformation-cli-java-plugin
   build:
     commands:
+      - pip install --upgrade 'six==1.15.0'
       - pre-commit run --all-files
       - |
         if [ "$(ls -A $CODEBUILD_SRC_DIR)" ]; then
