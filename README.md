@@ -1,15 +1,8 @@
-## My Project
+## CloudFormation Resource Provider Package For Capacity Reservation Fleet Service
 
-TODO: Fill this README out!
+Capacity Reservation Fleet doc [link](https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/cr-fleets.html)
 
-Be sure to:
-
-* Change the title in this README
-* Edit your repository description on GitHub
-
-## Security
-
-See [CONTRIBUTING](CONTRIBUTING.md#security-issue-notifications) for more information.
+Capacity Reservation Fleet cfn doc [link](https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-resource-ec2-capacityreservationfleet.html)
 
 ## License
 
