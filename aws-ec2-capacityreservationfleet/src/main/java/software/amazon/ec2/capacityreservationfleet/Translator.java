@@ -151,7 +151,6 @@ public class Translator {
               .instanceType(specification.instanceTypeAsString())
               .instancePlatform(specification.instancePlatformAsString())
               .availabilityZone(specification.availabilityZone())
-              .availabilityZoneId(specification.availabilityZoneId())
               .ebsOptimized(specification.ebsOptimized())
               .priority(specification.priority())
               .weight(specification.weight())

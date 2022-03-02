@@ -6,7 +6,8 @@
       "InstancePlatform": "Linux/UNIX",
       "AvailabilityZone": "{{ExportedAvailabilityZone}}",
       "Weight": 1.1,
-      "Priority": 1
+      "Priority": 1,
+      "EbsOptimized": false
     }
   ],
   "Tenancy": "default",
