@@ -32,7 +32,7 @@ public class UpdateHandler extends BaseHandlerStd {
                         .makeServiceCall((describeRequest, ec2ClientProxyClient) -> describeCapacityReservationFleets(describeRequest, ec2ClientProxyClient, logger))
                         .handleError((awsRequest, exception, client, model, context) -> handleDescribeCapacityReservationFleetsError(awsRequest, exception, proxyClient, model, context))
                         .done((describeFleetsRequest, describeFleetsResponse, client, model, context) ->
-                                Translator.translateToResourceFoundProgress(describeFleetsResponse, logger, context, model)))
+                                Translator.translateToResourceFoundProgress(describeFleetsResponse, logger, context, model, true)))
             .then(progress ->
                 proxy.initiate("AWS-EC2-CapacityReservationFleet::Update-update", proxyClient, progress.getResourceModel(), progress.getCallbackContext())
                         .translateToServiceRequest((model) -> Translator.translateToUpdateRequest(model, logger))
