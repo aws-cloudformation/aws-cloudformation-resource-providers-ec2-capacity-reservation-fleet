@@ -120,17 +120,20 @@ public class Translator {
    * Return only SUCCESS for FAILED status as per the official guide - https://docs.aws.amazon.com/cloudformation-cli/latest/userguide/resource-type-test-contract.html
    *
    * @param response the aws service describe resource response
+   * @param validateModifyingState - If true, validates 'modifying' transient state is not present for the given Fleet.
+   *                              Otherwise, disregards this state.
    * @return model resource model
    */
   public static ResourceModel translateFromReadResponse(final DescribeCapacityReservationFleetsResponse response,
                                                           final Logger logger,
-                                                          final ResourceModel desiredResourceState) {
+                                                          final ResourceModel desiredResourceState,
+                                                          final boolean validateModifyingState) {
     if (desiredResourceState == null) {
       logger.log("[ERROR] desiredResourceState is null");
       throw new CfnServiceInternalErrorException("Resource is not in a desired state.");
     }
 
-    validateReadResponse(response, logger);
+    validateReadResponse(response, logger, validateModifyingState);
     final ResourceModel.ResourceModelBuilder builder = ResourceModel.builder();
     final CapacityReservationFleet crFleet = response.capacityReservationFleets().get(0);
     final List<Tag> tags = crFleet.tags().stream().map((tag) -> Tag.builder().key(tag.key()).value(tag.value()).build()).collect(Collectors.toList());
@@ -178,9 +181,10 @@ public class Translator {
           final DescribeCapacityReservationFleetsResponse response,
           final Logger logger,
           final software.amazon.ec2.capacityreservationfleet.CallbackContext context,
-          final ResourceModel model) {
+          final ResourceModel model,
+          final boolean validateModifyingState) {
     try {
-      validateReadResponse(response, logger);
+      validateReadResponse(response, logger, validateModifyingState);
       return ProgressEvent.defaultInProgressHandler(context, 0, model);
     } catch (final BaseHandlerException ex) {
       return ProgressEvent.defaultFailureHandler(ex, ex.getErrorCode());
@@ -383,10 +387,13 @@ public class Translator {
    *
    * @param response
    * @param logger
+   * @param validateModifyingState - If true, validates 'modifying' transient state is not present for the given Fleet.
+   *                              Otherwise, disregards this state.
    */
   private static void validateReadResponse(
           final DescribeCapacityReservationFleetsResponse response,
-          final Logger logger) {
+          final Logger logger,
+          final boolean validateModifyingState) {
     logger.log(String.format("[INFO] Validating DescribeCapacityReservationFleetsResponse: %s", response));
 
     if (response == null || !response.hasCapacityReservationFleets() || (response.capacityReservationFleets() == null || response.capacityReservationFleets().size() == 0)) {
@@ -408,7 +415,7 @@ public class Translator {
       } else if (CapacityReservationFleetState.SUBMITTED.equals(fleet.state()) ||
               CapacityReservationFleetState.CANCELLING.equals(fleet.state()) ||
               CapacityReservationFleetState.EXPIRING.equals(fleet.state()) ||
-              CapacityReservationFleetState.MODIFYING.equals(fleet.state())) {
+              (validateModifyingState && CapacityReservationFleetState.MODIFYING.equals(fleet.state()))) {
         logger.log(String.format("[INFO] CRFleet %s is in a in_progress state. state: %s. Throwing NotStabilizedException.",
                 fleet.capacityReservationFleetId(), fleet.state()));
 
