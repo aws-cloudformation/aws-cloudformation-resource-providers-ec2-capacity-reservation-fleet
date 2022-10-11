@@ -23,6 +23,6 @@ public class ReadHandler extends BaseHandlerStd {
                 .translateToServiceRequest(model -> Translator.translateToReadRequest(model, logger))
                 .makeServiceCall((describeRequest, ec2ClientProxyClient) -> describeCapacityReservationFleets(describeRequest, ec2ClientProxyClient, logger))
                 .handleError((awsRequest, exception, client, model, context) -> handleDescribeCapacityReservationFleetsError(awsRequest, exception, proxyClient, model, context))
-                .done(awsResponse -> ProgressEvent.defaultSuccessHandler(Translator.translateFromReadResponse(awsResponse, logger, request.getDesiredResourceState())));
+                .done(awsResponse -> ProgressEvent.defaultSuccessHandler(Translator.translateFromReadResponse(awsResponse, logger, request.getDesiredResourceState(), true)));
     }
 }
