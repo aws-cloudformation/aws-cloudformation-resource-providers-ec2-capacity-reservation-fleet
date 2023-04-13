@@ -168,7 +168,7 @@ public class Translator {
             .instanceTypeSpecifications(instanceTypeSpecifications)
             .tagSpecifications(CollectionUtils.isEmpty(tagSpecifications) ? null : tagSpecifications)
             .instanceMatchCriteria(crFleet.instanceMatchCriteria().toString())
-            .endDate(crFleet.endDate() != null ? String.valueOf(crFleet.endDate().getEpochSecond()) : null)
+            .endDate(crFleet.endDate() != null ? String.valueOf(crFleet.endDate()) : null)
             .build();
 
     final ResourceModel model = builder.build();
